@@ -78,14 +78,44 @@ export default {
       this.center = [outlet.latitude, outlet.longitude];
       this.zoom = 15;
     },
-    getCircleColor() {
-      // Add logic for color based on intersection
-      return 'blue'; // Default color
-    }
-  }
-}
-</script>
+    circlesIntersect(outlet1, outlet2) {
+    const RADIUS_SUM = 10000; // Sum of radii of two 5KM circles
+    const distance = this.distanceBetweenPoints(
+      outlet1.latitude, outlet1.longitude,
+      outlet2.latitude, outlet2.longitude
+    );
+    return distance < RADIUS_SUM;
+  },
 
+  distanceBetweenPoints(lat1, lon1, lat2, lon2) {
+    // Haversine formula to calculate the distance
+    const toRad = x => (x * Math.PI) / 180;
+    const R = 6371e3; // meters
+
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = 
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * 
+      Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+    return R * c;
+  },
+
+  getCircleColor(outlet) {
+    // Check if this outlet's circle intersects with any other
+    for (let otherOutlet of this.outlets) {
+      if (outlet.id !== otherOutlet.id && this.circlesIntersect(outlet, otherOutlet)) {
+        return 'red'; // Intersection color
+      }
+    }
+    return 'blue'; // Default color
+  },
+}
+  }
+
+</script>
 
 <style>
 .app-container {
@@ -94,48 +124,48 @@ export default {
 }
 
 .sidebar {
-  width: 25%;
-  background-color: #ecf0f1;
-  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
-  padding: 20px;
+  width: 300px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 25px;
   overflow-y: auto;
 }
 
 .sidebar h2 {
-  color: #34495e;
-  font-size: 1.8em;
+  font-size: 2em;
+  margin-bottom: 15px;
 }
 
 .sidebar input {
   width: 100%;
-  padding: 10px;
+  padding: 15px;
   margin-bottom: 20px;
   border: none;
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  font-size: 1em;
 }
 
 .outlet-list li {
-  background-color: white;
-  padding: 10px;
+  background-color: #34495e;
+  padding: 15px;
   margin-bottom: 10px;
   border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .outlet-list li:hover {
-  background-color: #bdc3c7;
-  transform: scale(1.02);
+  background-color: #4CAF50;
+  transform: scale(1.05);
 }
 
 .map-container {
   flex-grow: 1;
-  border-left: 1px solid #bdc3c7;
+  position: relative;
 }
 
 .popup-content {
   font-size: 1em;
-  color: #2c3e50;
+  color: #333;
 }
 </style>

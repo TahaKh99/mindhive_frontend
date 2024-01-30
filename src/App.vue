@@ -22,7 +22,6 @@ export default {
   }
 }
 </script>
-
 <style>
 #app {
   font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -36,7 +35,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #34495e;
+  background-color: #2c3e50;
   color: white;
   padding: 10px 20px;
 }
@@ -50,6 +49,7 @@ export default {
   color: white;
   text-decoration: none;
   margin-left: 20px;
+  font-size: 1em;
 }
 
 .navbar .nav-links a:hover {
