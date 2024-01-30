@@ -1,58 +1,141 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div class="app-container">
+    <aside class="sidebar">
+      <h2>Outlets in Melaka</h2>
+      <input type="text" v-model="searchQuery" placeholder="Search outlets..." />
+      <ul class="outlet-list">
+        <li v-for="outlet in filteredOutlets" :key="outlet.id" @click="centerMapOnOutlet(outlet)">
+          <h3>{{ outlet.name }}</h3>
+          <p>{{ outlet.address }}</p>
+        </li>
+      </ul>
+    </aside>
+    <div class="map-container">
+      <l-map :zoom="zoom" :center="center" style="height: 100%;">
+        <l-tile-layer :url="mapStyle" :attribution="attribution"></l-tile-layer>
+        <l-marker v-for="outlet in outlets" :key="outlet.id" :lat-lng="[outlet.latitude, outlet.longitude]">
+          <l-popup><div class="popup-content">{{ outlet.name }}</div></l-popup>
+        </l-marker>
+        <l-circle v-for="outlet in outlets" :key="outlet.id" 
+                  :lat-lng="[outlet.latitude, outlet.longitude]" 
+                  :radius="5000"
+                  :color="getCircleColor(outlet)">
+        </l-circle>
+      </l-map>
+    </div>
   </div>
 </template>
 
+
 <script>
+import axios from 'axios';
+import { LMap, LTileLayer, LMarker, LPopup, LCircle } from 'vue2-leaflet';
+import 'leaflet/dist/leaflet.css';
+
 export default {
   name: 'HelloWorld',
-  props: {
-    msg: String
+  components: {
+    LMap, LTileLayer, LMarker, LPopup, LCircle
+  },
+  data() {
+    return {
+      outlets: [],
+      center: [2.1960, 102.2405],
+      zoom: 13,
+      mapStyle: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+      attribution: 'Map data © OpenStreetMap contributors',
+      searchQuery: ''
+    };
+  },
+  computed: {
+    filteredOutlets() {
+      return this.outlets.filter(outlet =>
+        outlet.name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    }
+  },
+  created() {
+    this.fetchOutlets('https://tahakh.pythonanywhere.com/api/outlets/');
+  },
+  methods: {
+    fetchOutlets(url) {
+      axios.get(url, {
+        headers: {
+          'Authorization': `Api-Key avN8F1Ez.lQgxfHtm3OP26XQBIMp6HSAPCI8roFaT`
+        }
+      })
+      .then(response => {
+        this.outlets = this.outlets.concat(response.data.results);
+        if (response.data.next) {
+          this.fetchOutlets(response.data.next);
+        }
+      })
+      .catch(error => {
+        console.error("There was an error fetching the outlets:", error);
+      });
+    },
+    centerMapOnOutlet(outlet) {
+      this.center = [outlet.latitude, outlet.longitude];
+      this.zoom = 15;
+    },
+    getCircleColor() {
+      // Add logic for color based on intersection
+      return 'blue'; // Default color
+    }
   }
 }
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
+
+<style>
+.app-container {
+  display: flex;
+  height: 100vh;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+.sidebar {
+  width: 25%;
+  background-color: #ecf0f1;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  padding: 20px;
+  overflow-y: auto;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.sidebar h2 {
+  color: #34495e;
+  font-size: 1.8em;
 }
-a {
-  color: #42b983;
+
+.sidebar input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 20px;
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.outlet-list li {
+  background-color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.outlet-list li:hover {
+  background-color: #bdc3c7;
+  transform: scale(1.02);
+}
+
+.map-container {
+  flex-grow: 1;
+  border-left: 1px solid #bdc3c7;
+}
+
+.popup-content {
+  font-size: 1em;
+  color: #2c3e50;
 }
 </style>
