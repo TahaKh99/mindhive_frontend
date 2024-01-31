@@ -66,11 +66,11 @@ export default {
       searchQuery: '',
       customIcon: L.icon({
       iconUrl: mapMarker,
-      iconSize: [40, 40], // Adjust the size as needed
-      iconAnchor: [20, 40], // Adjust depending on the image dimensions
-      popupAnchor: [0, -40], // Adjust if necessary
+      iconSize: [40, 40], 
+      iconAnchor: [20, 40], 
+      popupAnchor: [0, -40], 
     }),
-    showRadius: true, // Default value
+    showRadius: true, 
 
     };
   },
