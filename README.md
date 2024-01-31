@@ -40,7 +40,7 @@ Live application URL: Netlify App URL
 Clone the frontend repository to your local machine:
 
 ```
-git clone https://github.com/[username]/mindhive-frontend.git
+git clone https://github.com/TahaKh99/mindhive_frontend.git
 cd mindhive-frontend
 ```
 Step 2: Install Dependencies
