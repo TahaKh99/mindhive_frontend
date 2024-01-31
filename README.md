@@ -24,7 +24,7 @@ This project implements a frontend web application using Vue.js. It interacts wi
 
 ## Deployment
 Deployed on Netlify with continuous deployment from a GitHub repository.
-Live application URL: Netlify App URL
+Live application URL: [Netlify App URL](https://master--deluxe-brigadeiros-42bdef.netlify.app/)
 
 ### Deployment Process
 - Connected the GitHub repository with Netlify.
